@@ -1,21 +1,16 @@
-// use <nome_do_banco>
-// Altera o contexto para o banco de dados especificado. Se o banco de dados não existir, será criado ao inserir o primeiro documento.
+// Seleciona ou cria o banco de dados
 use ifsp;
 
-// show dbs
-// Lista todos os bancos de dados disponíveis na instância do MongoDB.
+// Lista todos os bancos de dados existentes
 show dbs;
 
-// db
-// Retorna o nome do banco de dados atualmente em uso.
+// Mostra o banco de dados atualmente em uso
 db;
 
-// show collections
-// Lista todas as coleções dentro do banco de dados selecionado.
+// Lista as coleções do banco de dados atual
 show collections;
 
-// db.<colecao>.insertMany([...])
-// Insere múltiplos documentos na coleção especificada.
+// Insere múltiplos documentos na coleção 'contatos'
 db.contatos.insertMany([
     {
         "nome": "João da Silva",
@@ -27,26 +22,59 @@ db.contatos.insertMany([
     }
 ]);
 
-// db.<colecao>.find()
-// Retorna todos os documentos da coleção especificada.
+// Retorna todos os documentos da coleção
 db.contatos.find();
 
-// db.<colecao>.countDocuments()
-// Retorna a quantidade total de documentos em uma coleção.
+// Retorna a quantidade total de documentos
 db.contatos.countDocuments();
 
-// db.<colecao>.find(<criterio>)
-// Retorna documentos que correspondem a um critério de busca.
+// Retorna documentos que atendem a um critério
 db.contatos.find({ "nome": "João da Silva" });
 
-// db.<colecao>.updateOne(<criterio>, { $set: { <campo>: <novo_valor> } })
-// Atualiza campos específicos em um único documento que corresponda ao critério fornecido.
- db.contatos.updateOne({ "nome": "João da Silva" }, { $set: { "email": "novo.email@ifsp.edu.br" } });
+// Retorna o primeiro documento da coleção
+db.contatos.findOne();
 
-// db.<colecao>.deleteOne(<criterio>)
-// Remove um único documento da coleção que corresponda ao critério fornecido.
- db.contatos.deleteOne({ "nome": "Carlos Eduardo Souza" });
+// Retorna documentos que satisfaçam pelo menos uma condição
+db.contatos.find({
+  "$or": [
+    { "nome": "João da Silva" },
+    { "email": "joao.silva@aluno.ifsp.edu.br" }
+  ]
+});
 
-// db.<colecao>.find()
-// Verifica os documentos atuais da coleção após inserções, atualizações ou remoções.
+// Atualiza o email de João da Silva
+db.contatos.updateOne(
+  { "nome": "João da Silva" },
+  { $set: { "email": "novo.email@aluno.ifsp.edu.br" } }
+);
+
+// Atualiza ou insere (upsert) um documento
+db.contatos.update(
+  { "nome": "Luan" },      
+  { $set: { "idade": "19" } }, 
+  { upsert: true }                       
+) 
+
+// Remove o contato de Carlos Eduardo Souza
+db.contatos.deleteOne({ "nome": "Carlos Eduardo Souza" });
+
+// Verifica os documentos restantes
 db.contatos.find();
+
+// Busca o contato principal
+var contatoPrincipal = db.contatos.findOne({ "nome": "João da Silva" });
+
+// Cria o subdocumento de emergência
+var emergencia = {
+    "nome": "Carlos Eduardo Souza",
+    "email": "souza.eduardo@aluno.ifsp.edu.br"
+};
+
+// Adiciona o subdocumento
+contatoPrincipal.emergencia = emergencia;
+
+// Atualiza o documento com o campo aninhado
+db.contatos.update(
+  { "_id": contatoPrincipal._id },
+  contatoPrincipal
+);
